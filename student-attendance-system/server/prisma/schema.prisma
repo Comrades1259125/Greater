@@ -1,0 +1,100 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  STUDENT
+  TEACHER
+  ADMIN
+}
+
+enum AttendanceStatus {
+  PRESENT
+  LATE
+  ABSENT
+  ON_LEAVE
+}
+
+enum LeaveStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String // Will be a bcrypt hash
+  role      Role     @default(STUDENT)
+  createdAt DateTime @default(now())
+
+  // Relations
+  enrollments       Enrollment[]
+  taughtClasses     Class[]
+  attendanceRecords Attendance[]
+  leaveRequests     LeaveRequest[]
+  reviewedLeaves    LeaveRequest[] @relation("ReviewedBy")
+}
+
+model Class {
+  id           String   @id @default(cuid())
+  name         String
+  scheduleInfo String // Store schedule as a JSON string: e.g., '{"day": "Monday", "time": "09:00-10:30"}'
+  teacherId    String
+  
+  // Relations
+  teacher     User         @relation(fields: [teacherId], references: [id])
+  enrollments Enrollment[]
+  attendance  Attendance[]
+}
+
+model Enrollment {
+  classId   String
+  studentId String
+
+  // Relations
+  class   Class @relation(fields: [classId], references: [id])
+  student User  @relation(fields: [studentId], references: [id])
+
+  @@id([classId, studentId])
+}
+
+model Attendance {
+  id        String           @id @default(cuid())
+  classId   String
+  studentId String
+  timestamp DateTime         @default(now())
+  status    AttendanceStatus
+
+  // Relations
+  class   Class @relation(fields: [classId], references: [id])
+  student User  @relation(fields: [studentId], references: [id])
+}
+
+model LeaveRequest {
+  id            String      @id @default(cuid())
+  studentId     String
+  fromDate      DateTime
+  toDate        DateTime
+  reason        String
+  attachmentUrl String?
+  status        LeaveStatus @default(PENDING)
+  reviewedById  String?
+  reviewedAt    DateTime?
+
+  // Relations
+  student    User  @relation(fields: [studentId], references: [id])
+  reviewedBy User? @relation("ReviewedBy", fields: [reviewedById], references: [id])
+}
+
+model Holiday {
+  id          String   @id @default(cuid())
+  date        DateTime @db.Date
+  description String
+}
