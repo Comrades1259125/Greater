@@ -14,6 +14,10 @@ const useAuthStore = create(
           const response = await api.post('/auth/login', { email, password });
           const { token, user } = response.data;
           
+          // Store token in localStorage for axios interceptor
+          localStorage.setItem('token', token);
+          localStorage.setItem('user', JSON.stringify(user));
+          
           set({
             user,
             token,
@@ -30,6 +34,10 @@ const useAuthStore = create(
       },
 
       logout: () => {
+        // Clear localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        
         set({
           user: null,
           token: null,
@@ -42,6 +50,9 @@ const useAuthStore = create(
           const response = await api.get('/auth/me');
           const { user } = response.data;
           
+          // Update localStorage
+          localStorage.setItem('user', JSON.stringify(user));
+          
           set({
             user,
             isAuthenticated: true,
@@ -49,6 +60,10 @@ const useAuthStore = create(
           
           return { success: true, user };
         } catch (error) {
+          // Clear localStorage on error
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          
           set({
             user: null,
             token: null,
