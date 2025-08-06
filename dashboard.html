@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h2>Teacher Dashboard</h2>
+    <button onclick="logout()">Logout</button>
+  </header>
+
+  <main>
+    <section class="student-list">
+      <h3>Student List</h3>
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Grade</th><th>Points</th><th>Action</th></tr>
+        </thead>
+        <tbody id="studentTable">
+          <!-- JavaScript will populate this -->
+        </tbody>
+      </table>
+    </section>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
